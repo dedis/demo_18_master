@@ -1,0 +1,25 @@
+[[servers]]
+  Address = "tls://192.168.0.42:7002"
+  Suite = "Ed25519"
+  Public = "6b225f7555d0d23b12bcc20f92c05858d8a2796050b592007465ee5cdb5b2ce1"
+  Description = "Conode_1"
+[[servers]]
+  Address = "tls://192.168.0.42:7004"
+  Suite = "Ed25519"
+  Public = "27dd9f2b4850a88a51f636c0442284bb6d799cab91929075ad481af71d987236"
+  Description = "Conode_2"
+[[servers]]
+  Address = "tls://192.168.0.42:7006"
+  Suite = "Ed25519"
+  Public = "2ef60b03e69ecee7d38c55d31c27778e185d66cd405f9b27052c47b4b4c65724"
+  Description = "Conode_3"
+[[servers]]
+  Address = "tls://192.168.0.42:7008"
+  Suite = "Ed25519"
+  Public = "c2045be6ae3042aa0f0b4d4504050dac870337de116ec2b7b2ff36f3141686d1"
+  Description = "Conode_4"
+[[servers]]
+  Address = "tls://192.168.0.42:7010"
+  Suite = "Ed25519"
+  Public = "eae3a4845f1fd4259cef6df1800381f2e0b41d341a994d07bcc8236aa4165994"
+  Description = "Conode_5"
