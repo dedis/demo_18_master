@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ ! -f /conode_data/private.toml ]; then
-    ./conode setup --non-interactive
+    ./conode setup 
 fi
 
 echo "Starting conode"

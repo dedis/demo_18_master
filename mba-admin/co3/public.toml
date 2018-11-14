@@ -1,5 +1,5 @@
 [[servers]]
-  Address = "tls://192.168.0.42:7006"
+  Address = "tls://192.168.0.42:7776"
   Suite = "Ed25519"
   Public = "2ef60b03e69ecee7d38c55d31c27778e185d66cd405f9b27052c47b4b4c65724"
   Description = "Conode_3"
