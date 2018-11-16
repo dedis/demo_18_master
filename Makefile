@@ -1,8 +1,11 @@
-all: mba-admin mba-conode mba-cothority
+all: clean mba-conode mba-admin mba-cothority
 
 .PHONY: mba-admin mba-conode mba-cothority run-admin kill-admin
 IP = 192.168.0.42
-VERSION=2
+VERSION=3
+
+clean:
+	rm -f data/*
 
 mba-admin: mba-admin/Dockerfile
 	@cd mba-admin; \
@@ -11,6 +14,9 @@ mba-admin: mba-admin/Dockerfile
 	GOOS=linux GOARCH=amd64 go build -o bcadmin github.com/dedis/cothority/byzcoin/bcadmin; \
 	docker build -t mba-admin:${VERSION} .
 	docker tag mba-admin:${VERSION} dedis/mba-admin:latest
+	make run-admin &
+	sleep 10
+	make kill-admin
 
 mba-conode: mba-conode/Dockerfile
 	@cd mba-conode; \
@@ -39,7 +45,7 @@ docker-push:
 	docker push dedis/mba-cothority:latest
 
 run-admin: kill-admin
-	docker run --rm -v $$(pwd)/data:/conode_data -p 7772-7779:7772-7779 --name admin mba-admin:${VERSION}
+	docker run --rm -v $$(pwd)/data:/conode_data -p 7772-7781:7772-7781 --name admin mba-admin:${VERSION}
 
 kill-admin:
 	docker rm -f admin || true
@@ -51,3 +57,8 @@ run-conode:
 run-cothority:
 	docker rm -f cothority || true
 	docker run -ti --rm -v $$(pwd)/data:/conode_data --name cothority mba-cothority:${VERSION}
+
+run-www:
+	cd www; \
+	npm run-script build; \
+	python -m SimpleHTTPServer 8000

@@ -5,6 +5,7 @@ COPY co1/*.toml co1/
 COPY co2/*.toml co2/
 COPY co3/*.toml co3/
 COPY co4/*.toml co4/
+COPY co5/*.toml co5/
 COPY public.toml .
 COPY run_conodes.sh .
 COPY bcadmin .

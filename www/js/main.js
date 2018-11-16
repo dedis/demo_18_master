@@ -14,7 +14,7 @@ var cothority = require('@dedis/cothority');
 Log.print("starting", cothority);
 const net = cothority.net; // the network module
 const serverAddress = "ws://192.168.0.42:7773";
-const bcID = new Uint8Array(Buffer.from('8c3779cc6741ca92251e7accd893f8d6169b4577c245ae6bdccee455202c4df6.cfg', 'hex'));
+const bcID = new Uint8Array(Buffer.from('19f6b8533d9fd984a10b074d2bdfeacb0aa5b23edcb54cbb9aac2c2aeaf61d4d', 'hex'));
 const socket = new net.Socket(serverAddress, "ByzCoin"); // socket to talk to a conode
 Log.print("socket:", socket);
 global.Buffer = Buffer;
@@ -171,7 +171,16 @@ function updateRoster(list) {
 function updateStatus(sb) {
   let stat = ["# blocks: " + sb.index,
     "# backlinks: " + sb.backlinks.length,
-    "block-size: " + ( sb.data.length + sb.payload.length )
+    "block-size: " + (sb.data.length + sb.payload.length)
   ];
   $('#status').html("<pre>" + stat.join("\n") + "</pre>")
+}
+
+global.hex2iid = function(h) {
+  return new Uint8Array(Buffer.from(h, 'hex'));
+}
+
+global.value2coin = function(data) {
+  const coinModel = cothority.protobuf.root.lookup("Coin");
+  return coinModel.decode(data);
 }

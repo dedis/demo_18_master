@@ -1,5 +1,5 @@
 FROM debian:stretch-slim
-RUN apt-get update && apt-get install -y inetutils-ping bash vim
+RUN apt-get update && apt-get install -y inetutils-ping bash vim nano joe less
 WORKDIR /root/
 COPY bin/* ./
 COPY public.toml ./
