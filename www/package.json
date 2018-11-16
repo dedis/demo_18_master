@@ -1,0 +1,27 @@
+{
+  "name": "mba-18",
+  "version": "0.0.1",
+  "description": "Default website for Master Blockchain Workshop",
+  "main": "index.html",
+  "dependencies": {
+    "@dedis/cothority": "^1.1.20",
+    "buffer": "^5.2.1",
+    "g": "^2.0.1",
+    "highcharts": "^6.2.0",
+    "jquery": "^3.3.1",
+    "watchify": "^3.11.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.4",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1"
+  },
+  "scripts": {
+    "build": "browserify js/main.js -o static/bundle.js",
+    "watch": "watchify js/main.js -o static/bundle.js --debug --verbose"
+  },
+  "author": "Linus Gasser",
+  "license": "AGPL-3.0-or-later"
+}
