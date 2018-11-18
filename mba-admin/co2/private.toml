@@ -3,7 +3,7 @@
 Suite = "Ed25519"
 Public = "27dd9f2b4850a88a51f636c0442284bb6d799cab91929075ad481af71d987236"
 Private = "1db743895df1f805f94e9bd06a4679a73385ae13c84a4345a2e0b344d7da8c03"
-Address = "tls://192.168.0.42:7774"
+Address = "tls://192.168.0.232:7774"
 ListenAddress = ""
 Description = "Conode_2"
 WebSocketTLSCertificate = ""

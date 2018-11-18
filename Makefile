@@ -1,13 +1,28 @@
 all: clean mba-conode mba-admin mba-cothority
 
 .PHONY: mba-admin mba-conode mba-cothority run-admin kill-admin
-IP = 192.168.0.42
-VERSION=3
+IP = 192.168.0.232
+VERSION = 4
 
 clean:
 	rm -f data/*
 
-mba-admin: mba-admin/Dockerfile
+update-ip:
+	perl -pi -e "s/leaderIP.*/leaderIP: '${IP}:7773'/" www/js/vars.js
+	perl -pi -e "s/http:\/\/.*:9001/http:\/\/${IP}:9001/" www/index.html
+
+build-binaries:
+	rm -rf bin
+	mkdir bin
+	export GOARCH=amd64; \
+	for system in linux windows darwin; do \
+	  export GOOS=$$system; \
+		for app in ftcosi status byzcoin/bcadmin byzcoin/wallet; do \
+		  go build -o $$(basename $$app) $$app; \
+		done; \
+	done
+
+mba-admin: mba-admin/Dockerfile update-ip
 	@cd mba-admin; \
 	perl -pi -e "s-tls://.*:-tls://${IP}:-" *toml co*/*toml; \
 	echo "Building bcadmin"; \
@@ -17,11 +32,13 @@ mba-admin: mba-admin/Dockerfile
 	make run-admin &
 	sleep 10
 	make kill-admin
+	BC=$$( ls data/bc-* | sed -e "s/.*bc-\(.*\).cfg/\1/" ) ;\
+	perl -pi -e "s/byzcoinID.*/byzcoinID: '$$BC',/" www/js/vars.js
 
 mba-conode: mba-conode/Dockerfile
 	@cd mba-conode; \
 	echo "Compiling conode"; \
-	GOOS=linux GOARCH=amd64 go build -ldflags "-X main.gitTag=1811-mba-0 -X github.com/dedis/onet.gitTag=1811-mba-0" \
+	GOOS=linux GOARCH=amd64 go build -ldflags "-X main.gitTag=1811-mba-${VERSION} -X github.com/dedis/onet.gitTag=1811-mba-${VERSION}" \
 	  github.com/dedis/cothority/conode; \
 	docker build -t mba-conode:${VERSION} .
 	docker tag mba-conode:${VERSION} dedis/mba-conode:latest
@@ -61,4 +78,14 @@ run-cothority:
 run-www:
 	cd www; \
 	npm run-script build; \
+	if [ ! -d student_18_explorer ]; then \
+	  git clone github.com/dedis/student_18_explorer ;\
+		cd student_18_explorer; \
+		make build; \
+		cd .. ;\
+	fi ;\
+	if [ ! -d etherpad-lite ]; then \
+  	git clone https://github.com/ether/etherpad-lite.git; \
+	fi ;\
+	( pkill -f etherpad; cd etherpad-lite; bin/run.sh & ); \
 	python -m SimpleHTTPServer 8000
