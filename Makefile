@@ -1,7 +1,7 @@
-all: clean mba-conode mba-admin mba-cothority
+all: clean update-ip build-binaries mba-conode mba-admin mba-cothority
 
 .PHONY: mba-admin mba-conode mba-cothority run-admin kill-admin
-IP = 192.168.0.232
+IP = 192.168.0.1
 VERSION = 4
 
 clean:
@@ -10,70 +10,66 @@ clean:
 update-ip:
 	perl -pi -e "s/leaderIP.*/leaderIP: '${IP}:7773'/" www/js/vars.js
 	perl -pi -e "s/http:\/\/.*:9001/http:\/\/${IP}:9001/" www/index.html
+	@cd mba-admin; \
+	perl -pi -e "s-tls://.*:-tls://${IP}:-" *toml co*/*toml
 
 build-binaries:
-	rm -rf bin
-	mkdir bin
-	export GOARCH=amd64; \
+	@rm -rf bin
+	@mkdir bin
+	@export GOARCH=amd64; \
 	for system in linux windows darwin; do \
+	  echo "Building for system $$system"; \
 	  export GOOS=$$system; \
+		mkdir $$system; \
 		for app in ftcosi status byzcoin/bcadmin byzcoin/wallet; do \
-		  go build -o $$(basename $$app) $$app; \
+		  echo "  Building $$app"; \
+		  go build -o bin/$$system/$$(basename $$app) github.com/dedis/cothority/$$app; \
 		done; \
+		echo "  Building conode"; \
+		go build -o $$system/conode -ldflags "-X main.gitTag=1811-mba-${VERSION} -X github.com/dedis/onet.gitTag=1811-mba-${VERSION}" \
+		  github.com/dedis/cothority/conode; \
 	done
 
-mba-admin: mba-admin/Dockerfile update-ip
+mba-conode:
+	@cd mba-conode; \
+	for system in linux windows darwin; do \
+	  rm -rf conode; mkdir conode; \
+		cp setup-then-start.sh ../bin/$$system/conode conode; \
+		tar cf conode-$$system.tgz conode; \
+	done
+
+mba-admin:
 	@cd mba-admin; \
-	perl -pi -e "s-tls://.*:-tls://${IP}:-" *toml co*/*toml; \
-	echo "Building bcadmin"; \
-	GOOS=linux GOARCH=amd64 go build -o bcadmin github.com/dedis/cothority/byzcoin/bcadmin; \
-	docker build -t mba-admin:${VERSION} .
-	docker tag mba-admin:${VERSION} dedis/mba-admin:latest
-	make run-admin &
-	sleep 10
-	make kill-admin
-	BC=$$( ls data/bc-* | sed -e "s/.*bc-\(.*\).cfg/\1/" ) ;\
+	pkill -f conode; \
+	cp ../bin/darwin/{conode,bcadmin} .; \
+	rm -f *.cfg; \
+	./run_conodes.sh & \
+	sleep 5
+	pkill -f conode
+	@BC=$$( ls mba-admin/bc-*cfg | sed -e "s/.*bc-\(.*\).cfg/\1/" ) ;\
 	perl -pi -e "s/byzcoinID.*/byzcoinID: '$$BC',/" www/js/vars.js
 
-mba-conode: mba-conode/Dockerfile
-	@cd mba-conode; \
-	echo "Compiling conode"; \
-	GOOS=linux GOARCH=amd64 go build -ldflags "-X main.gitTag=1811-mba-${VERSION} -X github.com/dedis/onet.gitTag=1811-mba-${VERSION}" \
-	  github.com/dedis/cothority/conode; \
-	docker build -t mba-conode:${VERSION} .
-	docker tag mba-conode:${VERSION} dedis/mba-conode:latest
-
-mba-cothority: mba-cothority/Dockerfile
+mba-cothority:
 	@cd mba-cothority; \
-	rm -rf bin; \
-	mkdir -p bin; \
-	for p in ftcosi status byzcoin/bcadmin byzcoin/wallet; do \
-	  echo "Compiling $$p"; \
-		GOOS=linux GOARCH=amd64 go build -o bin/$$p github.com/dedis/cothority/$$p; \
-	done; \
-	cp ../mba-admin/public.toml .; \
-	rm bc*cfg; \
-	cp ../data/bc*cfg .; \
-	docker build -t mba-cothority:${VERSION} .
-	docker tag mba-cothority:${VERSION} dedis/mba-cothority:latest
-
-docker-push:
-	docker push dedis/mba-conode:latest
-	docker push dedis/mba-cothority:latest
+	for system in linux windows darwin; do \
+	  rm -rf cothority; mkdir cothority; \
+		cp ../mba-admin/group.toml cothority; \
+		cp ../mba-admin/bc*cfg cothority; \
+		cp bc_* msg.txt cothority; \
+		cp ../bin/$$system/* cothority; \
+		tar cf cothority-$$system.tgz cothority; \
+	done
 
 run-admin: kill-admin
-	docker run --rm -v $$(pwd)/data:/conode_data -p 7772-7781:7772-7781 --name admin mba-admin:${VERSION}
+	@cd mba-admin; \
+	./run_conodes.sh
 
 kill-admin:
-	docker rm -f admin || true
+	pkill -f conode || true
 
 run-conode:
-	docker rm -f conode || true
-	docker run -ti --rm -v $$(pwd)/data:/conode_data -p 7770-7771:7770-7771 --name conode mba-conode:${VERSION}
-
-run-cothority:
-	docker rm -f cothority || true
-	docker run -ti --rm -v $$(pwd)/data:/conode_data --name cothority mba-cothority:${VERSION}
+	@cd mba-conode; \
+	./setup_then_start.sh
 
 run-www:
 	cd www; \

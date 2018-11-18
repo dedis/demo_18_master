@@ -1,4 +1,4 @@
 module.exports = {
- byzcoinID: '1bf96b46d6720656e52ba40972cce03e87358d0b82832853b6f5ac4e55991c83',
- leaderIP: '192.168.0.232:7773'
+ byzcoinID: 'f6d652dc04231c3f3564707d59904c0f36839f89d97a0d5d1237fb9e2bae516a',
+ leaderIP: '192.168.0.1:7773'
 }
