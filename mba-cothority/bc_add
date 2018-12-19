@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "[[servers]]
+$1" > /tmp/new.toml
+bcadmin roster add /conode_data/bc-*cfg /conode_data/key-*.cfg /tmp/new.toml

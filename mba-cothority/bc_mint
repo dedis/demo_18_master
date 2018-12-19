@@ -1,0 +1,2 @@
+#!/bin/bash
+bcadmin mint /conode_data/bc-*cfg /conode_data/key-*.cfg $1 1000000

@@ -1,5 +1,6 @@
 require("babel-core/register");
 require("babel-polyfill");
+var vars = require("./vars");
 var $ = require('jquery');
 
 var Highcharts = require('highcharts');
@@ -13,8 +14,8 @@ var cothority = require('@dedis/cothority');
 
 Log.print("starting", cothority);
 const net = cothority.net; // the network module
-const serverAddress = "ws://192.168.0.42:7773";
-const bcID = new Uint8Array(Buffer.from('19f6b8533d9fd984a10b074d2bdfeacb0aa5b23edcb54cbb9aac2c2aeaf61d4d', 'hex'));
+const bcID = new Uint8Array(Buffer.from(vars.byzcoinID, 'hex'));
+const serverAddress = vars.leaderIP;
 const socket = new net.Socket(serverAddress, "ByzCoin"); // socket to talk to a conode
 Log.print("socket:", socket);
 global.Buffer = Buffer;
